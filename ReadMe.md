@@ -5,6 +5,7 @@ Bu sefer readme kasmakla uğraşmayacağım
 
 Libraries klasörü içinde ekran için gerekli libraryler var onları direkt olarak C:/Users/%username%/Documents/Arduino/libraires klasörünün içine atabilirsiniz
 
+
 2.4" TFT LCD Dokunmatik Ekran Shield Sd kart dahil
 6 buton
 esp8266 (Serial0'a bağlı)
