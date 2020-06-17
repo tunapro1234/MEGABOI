@@ -1,5 +1,7 @@
 #include "Adafruit_GFX.h"
 #include "MCUFRIEND_kbv.h"
+#include <SPI.h>
+#include <SD.h>
 
 MCUFRIEND_kbv tft(A3, A2, A1, A0, A4); // Ekran tanıtımı
 
@@ -74,6 +76,8 @@ void printTestMenu();
 
 // ESP için test menüsü
 void openESPTestMenu();
+// SD için test menüsü
+void openSDTestMenu();
 
 // Settings menüsü fonksiyonları
 // String openSettingsMenu();
@@ -115,6 +119,7 @@ void setup(){
     pinMode(BUTTON_BACK, INPUT_PULLUP);
     pinMode(BUTTON_DOWN, INPUT_PULLUP);
     pinMode(BUTTON_UP, INPUT_PULLUP);
+    pinMode(SS, OUTPUT);
 
     // Ekran kurulumları ben de bilmiyorum
 
@@ -369,7 +374,11 @@ void openTestMenu(){
                 case 1:
                     openESPTestMenu();
                     break;
-                
+
+                case 2:
+                    openSDTestMenu();
+                    break;
+
                 case MAX_MENU_NUM - 1:
                     tft.fillScreen(DARKGREY);
                     
@@ -378,7 +387,6 @@ void openTestMenu(){
                     printCursor(cursor, DEFAULT_MAIN_MENU_COLOR);
 
                     return;
-                    break;
             }
 
         }   
@@ -409,13 +417,79 @@ void printTestMenu(){
     }
 }
 
+void openSDTestMenu(){
+    tft.fillScreen(BLACK);
+    tft.setTextColor(GREEN);
+    tft.setTextSize(1);
+    int w_menu = 0;
+    
+    tft.setCursor(0, w_menu * 10);
+    tft.print("SD INIT STARTING");
+
+    File myFile;
+
+    if (!SD.begin(10, 11, 12, 13)) {
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("SD INIT FAIL");
+        
+        while (true){
+            key = key_get();
+
+            if (key.compareTo("back") == 0){
+                tft.fillScreen(LIGHTGREY);
+                cursor = 0;
+
+                printTestMenu();
+                printCursor(cursor, LIGHTGREY);
+                return;
+            }
+
+            delay(wait_time);
+        }
+    }
+    // SD librarysinin read-write örneği
+    myFile = SD.open("test.txt", FILE_WRITE);
+    
+    if (myFile) {
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("Writing to test.txt...");
+        
+        myFile.println("testing 1, 2, 3.");
+        
+        myFile.close();
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("done.");
+    } 
+    else {
+        w_menu++;
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("error opening test.txt");
+    }
+    
+    myFile = SD.open("test.txt");
+    if (myFile) {
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("test.txt:");
+        
+        while (myFile.available()) {
+            tft.setCursor(0, ++w_menu * 10);
+            tft.print(myFile.read());
+        }
+        myFile.close();
+    } 
+    else {
+        tft.setCursor(0, ++w_menu * 10);
+        tft.print("error opening test.txt");
+    }
+
+}
+
 void openESPTestMenu(){
     tft.fillScreen(BLACK);
     tft.setTextColor(GREEN);
     tft.setTextSize(1);
-    int w_menu;
+    int w_menu = 0;
     
-    w_menu = 0;
     tft.setCursor(0, w_menu * 10);
     tft.print("ESP CONFIG STARTING");
     
@@ -428,8 +502,7 @@ void openESPTestMenu(){
     delay(3000);
         
     if(Serial.find("OK")){
-        w_menu++;
-        tft.setCursor(0, w_menu * 10);
+        tft.setCursor(0, ++w_menu * 10);
         tft.print("AT OK");
 
         Serial.println("AT+CWMODE=1");
@@ -441,12 +514,10 @@ void openESPTestMenu(){
     }
     
     else {    
-        w_menu++;
-        tft.setCursor(0, w_menu * 10);
+        tft.setCursor(0, ++w_menu * 10);
         tft.print("AT FAIL");
         
-        w_menu++;
-        tft.setCursor(0, w_menu * 10);
+        tft.setCursor(0, ++w_menu * 10);
         tft.print("ESP'NIN VE KABLOLARININ DOGRU TAKILI OLDUGUNA EMIN OLUN");
         
         while (true){
@@ -471,23 +542,14 @@ void openESPTestMenu(){
     Serial.print("AT+CIPSERVER=1,80\r\n");
     delay(1000);
 
-    w_menu++;
-    tft.setCursor(0, w_menu * 10);
+    tft.setCursor(0, ++w_menu * 10);
     tft.print("SANIRIM CONNECTED");
 
     while(true){
         if(Serial.available() > 0){
             key = key_get();
-
-            if (key.compareTo("next") == 0){
-                tft.fillScreen(BLACK);    
-                w_menu = 0;
-                
-                tft.setCursor(0, w_menu * 10);
-                tft.print("EHEHEHE");
-            }
             
-            else if (key.compareTo("back") == 0){
+            if (key.compareTo("back") == 0){
                 tft.fillScreen(LIGHTGREY);
                 cursor = 0;
                 printTestMenu();
@@ -509,16 +571,16 @@ void openESPTestMenu(){
                 Serial.print(cipsend);
                 delay(500);
                 Serial.println(metin);
-                esp_led_test();
+                esp_server_test();
                 Serial.println("AT+CIPCLOSE=0");
             }            
             
-            delay(wait_time); // ne yapsam emin değilim
+            // delay(wait_time); // ne yapsam emin değilim tuşları okumuyor pff
         }
     }
 }
 
-void esp_led_test(){
+void esp_server_test(){
     String gelen ="";
     char serialdenokunan;
 
@@ -534,6 +596,53 @@ void esp_led_test(){
 
     if((gelen.indexOf(":GET /?color=black")>1)){ 
         tft.fillScreen(BLACK);
+    }
+}
+
+// Terminal deneme
+
+class Term{
+    int size;
+    int line_counter = 0;
+    String lines [64];
+    int w_menu = 0;
+
+    Term(int size){
+        this->size = size;
+    }
+    // Acilen pythona dönemem gerekiyor
+    void init(){
+        tft.fillScreen(BLACK);
+        tft.setTextColor(GREEN);
+        tft.setTextSize(1);
+        
+        tft.setCursor(0, w_menu * 10);
+    }
+
+    void print(String msg){
+        // Ekranda çok fazla yazı varsa son 16 satırı yazdır
+        if (w_menu <= 32){
+            tft.fillScreen(BLACK);
+            w_menu = 0;
+            for(i = 0; i <= 16; i++){
+                tft.setCursor(0, ++w_menu * 10);
+                tft.print(lines[(line_counter-16) + i])
+            }
+        }
+        
+        tft.setCursor(0, ++w_menu * 10);
+        
+        // Kaydedilen çok fazla yazı varsa baştan başlayarak sil 
+        if (line_counter => 64){
+            temp = lines[0];
+            for (i = 0; i < 64; i++){
+                lines[i] = lines[i+1]
+            }
+            line_counter = 63;
+        }
+
+        lines[++line_counter] = msg;
+        tft.print(msg);
     }
 }
 
