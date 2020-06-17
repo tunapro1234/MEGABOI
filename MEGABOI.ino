@@ -34,8 +34,8 @@ MCUFRIEND_kbv tft(A3, A2, A1, A0, A4); // Ekran tanıtımı
 #define BUTTON_BACK A13
 #define BUTTON_RIGHT A14
 
-#define SNAKEX_NUM 18 // yılan oyununda dikey çizgilerin sayısı (dinamik)
-#define SNAKEY_NUM 24 // yılan oyununda yatay çizgilerin sayısı (dinamik)
+#define SNAKEX_NUM 18 // yılan oyununda dikey çizgilerin sayısı -2 (dinamik)
+#define SNAKEY_NUM 24 // yılan oyununda yatay çizgilerin sayısı -2 (dinamik)
 #define SNAKESLIDEX 3 // Ekranın kenarlarındaki boşluk
 
 #define MAX_MENU_NUM 8 // Ana menüde kaç bölüm açılacağı (dinamik)
@@ -47,9 +47,9 @@ MCUFRIEND_kbv tft(A3, A2, A1, A0, A4); // Ekran tanıtımı
 #define wait_time 160       // Tuş hassasiyeti için bekleme süresi
 #define wait_time_snake 200 // snake fps düzenlemesi için
 
-#define apple_id 0
-#define snake_id 1
-#define empty_id 2
+const int apple_id = 0;
+const int snake_id = 1;
+const int empty_id = 2;
 
 // const int lenCurrentMenu = 2; ne olduğunu bilmiyorum
 
@@ -428,7 +428,7 @@ void openESPTestMenu(){
     delay(3000);
         
     if(Serial.find("OK")){
-        w_menu = 1;
+        w_menu++;
         tft.setCursor(0, w_menu * 10);
         tft.print("AT OK");
 
@@ -441,17 +441,28 @@ void openESPTestMenu(){
     }
     
     else {    
-        w_menu = 1;
+        w_menu++;
         tft.setCursor(0, w_menu * 10);
         tft.print("AT FAIL");
         
-        delay(2000);
+        w_menu++;
+        tft.setCursor(0, w_menu * 10);
+        tft.print("ESP'NIN VE KABLOLARININ DOGRU TAKILI OLDUGUNA EMIN OLUN");
+        
+        while (true){
+            key = key_get();
 
-        tft.fillScreen(LIGHTGREY);
-        cursor = 0;
-        printMainMenu();
-        printCursor(cursor, LIGHTGREY);
-        return;
+            if (key.compareTo("back") == 0){
+                tft.fillScreen(LIGHTGREY);
+                cursor = 0;
+
+                printTestMenu();
+                printCursor(cursor, LIGHTGREY);
+                return;
+            }
+
+            delay(wait_time);
+        }
     }
 
     Serial.print("AT+CIPMUX=1\r\n");
@@ -460,9 +471,31 @@ void openESPTestMenu(){
     Serial.print("AT+CIPSERVER=1,80\r\n");
     delay(1000);
 
+    w_menu++;
+    tft.setCursor(0, w_menu * 10);
+    tft.print("SANIRIM CONNECTED");
+
     while(true){
         if(Serial.available() > 0){
-            if(Serial.find("+IPD,")){
+            key = key_get();
+
+            if (key.compareTo("next") == 0){
+                tft.fillScreen(BLACK);    
+                w_menu = 0;
+                
+                tft.setCursor(0, w_menu * 10);
+                tft.print("EHEHEHE");
+            }
+            
+            else if (key.compareTo("back") == 0){
+                tft.fillScreen(LIGHTGREY);
+                cursor = 0;
+                printTestMenu();
+                printCursor(cursor, LIGHTGREY);
+                return;
+            }
+            
+            else if(Serial.find("+IPD,")){
                 String metin = "<head> TUNAPRO1234 </head>";
                 metin += "<br><a href=\" ?color=white\"><button type='button'>WHITE</button></a>"; 
                 metin += "<br><a href=\" ?color=black\"><button type='button'>BLACK</button></a>";      
@@ -478,7 +511,9 @@ void openESPTestMenu(){
                 Serial.println(metin);
                 esp_led_test();
                 Serial.println("AT+CIPCLOSE=0");
-            }
+            }            
+            
+            delay(wait_time); // ne yapsam emin değilim
         }
     }
 }
