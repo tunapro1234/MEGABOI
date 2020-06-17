@@ -7,8 +7,13 @@ Libraries klasörü içinde ekran için gerekli libraryler var onları direkt ol
 
 
 2.4" TFT LCD Dokunmatik Ekran Shield Sd kart dahil
+
 6 buton
+
 esp8266 (Serial0'a bağlı)
+
+Fat32 formatlı sd kart
+
 
 
 SPI arayüzü şeyleri yüzünden sd kart olayı direkt olarak megada çalışmıyor biraz modifiye lazım, shield da serial0 pinlerini yiyor onlar için de modifiye gerekli 
@@ -24,4 +29,7 @@ Kodun en başında hangi butonun hangi pine bağlandığı tanımlanıyor. Buton
 Sd kart olayı megada işkence gibi modifiye ettim ama çalışmadı o yüzden sanal spi tarzında bir şey yapmak gerekiyor https://learn.adafruit.com/adafruit-data-logger-shield/for-the-mega-and-leonardo buradan nasıl yapıldığına bakabilirsiniz
 
 ## Snake işkence gibi lütfen yardım edin
-Şimdi, openSnakeMenu fonksiyonu snake oyununu başlatıyor, printSnakeMenu fonksiyonu ızgarayı çiziyor, printSnakePixel fonksiyonu ise iilk parametre olarak x, ikince parametre olarak y, üçüncü parametre olarak da ne renk olacağını alıyor. apple_id, snake_id ve empty_id integer değere sahip değişkenler, değerleri kodun başında belirlendi printSnakePixel o değerlere bakar. Yukarı aşağı sağ sol ilerlemede sıkıntı yok, duvara çarpınca bitiyor ama random elma oluşturma ve snakein uzama işlerine bakamadım çünkü bu aletin kumanda kısmını bir tık daha acil görüyorum. printGameOver sadece GameOver yazısını yazdırır fonksiyonu çağırdıktan sonra openSnakeMenu fonksiyonun da kapanması gerekli (printGameOver() dan sonra return; ekleyin).
+Şimdi, openSnakeMenu fonksiyonu snake oyununu başlatıyor, printSnakeMenu fonksiyonu ızgarayı çiziyor, printSnakePixel fonksiyonu ise iilk parametre olarak x, ikince parametre olarak y, üçüncü parametre olarak da ne renk olacağını alıyor ve oraya nokta koyuyor. apple_id, snake_id ve empty_id integer değere sahip değişkenler, değerleri kodun başında belirlendi printSnakePixel o değerlere bakar. Yukarı aşağı sağ sol ilerlemede sıkıntı yok, duvara çarpınca bitiyor ama random elma oluşturma ve snakein uzama işlerine bakamadım çünkü bu aletin kumanda kısmını bir tık daha acil görüyorum. printGameOver sadece GameOver yazısını yazdırır fonksiyonu çağırdıktan sonra openSnakeMenu fonksiyonun da kapanması gerekli (printGameOver() dan sonra return; ekleyin).
+
+
+Büyük sıkıntılardan biri bütün ekranın sıfırlanması 2 saniye filan sürüyor, bu nedenle her seferinde ekranı yenilemektense *eski yılan bloklarının printSnakePixel(x, y, empty_id) ile silinmesi gerekiyor*
