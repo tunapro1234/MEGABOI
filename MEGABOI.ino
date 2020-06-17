@@ -610,7 +610,12 @@ class Term{
     Term(int size){
         this->size = size;
     }
-    // Acilen pythona dönemem gerekiyor
+    
+    Term{
+        this->font_size = 1;
+    }
+    
+    // Acilen pythona dönmem gerekiyor
     void init(){
         tft.fillScreen(BLACK);
         tft.setTextColor(GREEN);
