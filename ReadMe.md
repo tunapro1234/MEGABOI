@@ -24,7 +24,7 @@ Taşınabilirliği arttırmak için lion + düşürücü arttırıcı devre fila
 Akıllı ev tarzı projeler için biraz daha kumanda şeklinde eğlenceli bir şey olur diye düşünmüştüm ama oyun filan da eklemeyi düşünüyorum
 
 
-Kodun en başında hangi butonun hangi pine bağlandığı tanımlanıyor. Butonlar input puluup olarak tanımlanıyor dirençe gerek yok ama vcc yerine gnd bağlayın
+Kodun en başında hangi butonun hangi pine bağlandığı tanımlanıyor. Butonlar input puluup olarak tanımlanıyor dirence gerek yok ama vcc yerine gnd bağlayın
 
 Sd kart olayı megada işkence gibi modifiye ettim ama çalışmadı o yüzden sanal spi tarzında bir şey yapmak gerekiyor https://learn.adafruit.com/adafruit-data-logger-shield/for-the-mega-and-leonardo buradan nasıl yapıldığına bakabilirsiniz
 
@@ -33,3 +33,5 @@ Sd kart olayı megada işkence gibi modifiye ettim ama çalışmadı o yüzden s
 
 
 Büyük sıkıntılardan biri bütün ekranın sıfırlanması 2 saniye filan sürüyor, bu nedenle her seferinde ekranı yenilemektense *eski yılan bloklarının printSnakePixel(x, y, empty_id) ile silinmesi gerekiyor*
+
+Izgara üzerindeki blok sayısı dinamik ve muhtemelen çalışır ama denemeye çok üşeniyorum 16x22 ve tam kare gibi duruyor galiba hesaplamıştım 
