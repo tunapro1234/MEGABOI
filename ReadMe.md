@@ -1,7 +1,7 @@
 # Kod konusunda yardıma sonuna kadar açığım 
 C++ çok etkin olduğum bir dil değil o yüzden sıkıntı çekmiyorum desem yalan olur
 
-Bu sefer readme kasmakla uğraşmayacağım
+*Bu sefer readme kasmakla uğraşmayacağım*
 
 Libraries klasörü içinde ekran için gerekli libraryler var onları direkt olarak C:/Users/%username%/Documents/Arduino/libraires klasörünün içine atabilirsiniz
 
