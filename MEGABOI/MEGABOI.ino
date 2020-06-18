@@ -8,8 +8,6 @@
 // #include "menuGames.h"
 // #include "menuTest.h"
 
-
-
 MCUFRIEND_kbv tft(A3, A2, A1, A0, A4); // Ekran tanıtımı
 
 #define GREENYELLOW 0xAFE5

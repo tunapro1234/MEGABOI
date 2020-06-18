@@ -1,4 +1,3 @@
-#define wait_time_snake 200 // snake fps düzenlemesi için
 #include "MCUFRIEND_kbv.h"
 // #include "printGameOver.h"
 // #include "get_key.h"
@@ -6,6 +5,8 @@
 const int apple_id = 0;
 const int snake_id = 1;
 const int empty_id = 2;
+
+#define wait_time_snake 200 // snake fps düzenlemesi için
 
 #define SNAKEX_NUM 18 // yılan oyununda dikey çizgilerin sayısı -2 (dinamik)
 #define SNAKEY_NUM 24 // yılan oyununda yatay çizgilerin sayısı -2 (dinamik)
@@ -48,7 +49,7 @@ public:
 
 
 // yılan şeylerini çizdirme
-void printSnakeMenu(MCUFRIEND_kbv tft){
+void printSnakeMenu(MCUFRIEND_kbv tft){ // ızgara çizdirme
     for (int i = 1; i <= (SNAKEY_NUM - 1); i++)
     {
         tft.drawLine(
@@ -102,7 +103,7 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
     old_head->num = head->num;
 
     Direction direction;
-
+    
     String r_key = "";
 
     int cur_dir = STOP;

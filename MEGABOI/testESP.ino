@@ -1,14 +1,15 @@
 #include "MCUFRIEND_kbv.h"
 // #include "get_key.h"
-#include "Terminal.h"
+// #include "Terminal.h"
 
 #define wait_time 160       // Tuş hassasiyeti için bekleme süresi
+#define BLACK 0x0000 
+#define WHITE 0xFFFF
 
 // void esp_server_test(Term);
 // void openESPTestMenu(MCUFRIEND_kbv);
-Term terminalESP(1, tft);
 
-void esp_server_test(){
+void esp_server_test(MCUFRIEND_kbv tft){
     String gelen = "";
     char serialdenokunan;
 
@@ -19,15 +20,17 @@ void esp_server_test(){
 
     Serial.println(gelen);
     if((gelen.indexOf(":GET /?color=white")>1)){  
-        terminalESP.print("WHITE");
+        tft.fillScreen(WHITE);
     }
 
     if((gelen.indexOf(":GET /?color=black")>1)){ 
-        terminalESP.print("BLACK");
+        tft.fillScreen(BLACK);
+        
     }
 }
 
 void openESPTestMenu(MCUFRIEND_kbv tft){
+    Term terminalESP(1, tft);
     terminalESP.init();
     terminalESP.print("ESP CONFIG STARTING");
     
@@ -89,7 +92,7 @@ void openESPTestMenu(MCUFRIEND_kbv tft){
                 Serial.print(cipsend);
                 delay(500);
                 Serial.println(metin);
-                esp_server_test();
+                esp_server_test(tft);
                 Serial.println("AT+CIPCLOSE=0");
             }            
             

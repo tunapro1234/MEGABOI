@@ -55,8 +55,6 @@ class Term{
     }
 };
 
-Term terminal(1);
-
 void setup() {
     uint32_t when = millis();
 
@@ -71,6 +69,7 @@ void setup() {
 
 
 void loop() {
+    Term terminal(1);
     terminal.init();
     
     for (int i = 0; i < 1000; i++){
