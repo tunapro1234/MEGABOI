@@ -9,7 +9,7 @@
 // void esp_server_test(Term);
 // void openESPTestMenu(MCUFRIEND_kbv);
 
-void esp_server_test(MCUFRIEND_kbv tft){
+void esp_server_test(Term terminal){
     String gelen = "";
     char serialdenokunan;
 
@@ -20,11 +20,11 @@ void esp_server_test(MCUFRIEND_kbv tft){
 
     Serial.println(gelen);
     if((gelen.indexOf(":GET /?color=white")>1)){  
-        tft.fillScreen(WHITE);
+        terminal.print("WHITE");
     }
 
     if((gelen.indexOf(":GET /?color=black")>1)){ 
-        tft.fillScreen(BLACK);
+        terminal.print("BLACK");
         
     }
 }
@@ -92,7 +92,7 @@ void openESPTestMenu(MCUFRIEND_kbv tft){
                 Serial.print(cipsend);
                 delay(500);
                 Serial.println(metin);
-                esp_server_test(tft);
+                esp_server_test(terminal);
                 Serial.println("AT+CIPCLOSE=0");
             }            
             

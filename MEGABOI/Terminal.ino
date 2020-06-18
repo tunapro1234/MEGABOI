@@ -11,6 +11,8 @@ class Term{
         int w_menu = 0;
         MCUFRIEND_kbv tft;
         
+        Term(){}
+        
         Term(int font_size, MCUFRIEND_kbv tft){
             this->font_size = font_size;
             this->tft = tft;

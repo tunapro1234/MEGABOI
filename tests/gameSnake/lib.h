@@ -1,4 +1,5 @@
 #include "MCUFRIEND_kbv.h"
+#include "get_key.h"
 // #include "printGameOver.h"
 // #include "get_key.h"
 
@@ -16,6 +17,8 @@
 
 5) YILAN ELMAYI YEMEDİĞİNDE KUYRUK SİLİNECEK
 
+sakat mali hg
+boş bulduk kardeşim
 
 */
 
@@ -48,6 +51,7 @@ class Pixel{
         int y;
         int state;
     
+    Pixel(){}
     Pixel(int x, int y, int state){
         this->x = x;
         this->y = y;
@@ -63,80 +67,93 @@ enum Direction {
     UP = 4
 };
 
-
 class Snake{
     public:
         // int max_snake = (SNAKEX_NUM-2)*(SNAKEY_NUM-2);
         int oldSnakeLength = 1;
         int snakeLength = 1;
         
-        Pixel snakeParts [snakeLength];
+        Pixel* snakeParts = new Pixel[snakeLength];
+        
+        Pixel headPixel;
+        Pixel tailPixel;
+        Pixel oldTailPixel;
         
         Direction next_dir = STOP;
         Direction cur_dir = STOP;
 
+        MCUFRIEND_kbv tft;
 
-    Snake(Pixel startPixel, MCUFRIEND_kbv tft){
-        this->headPixel = startPixel;
-        this->tailPixel = startPixel;
+    Snake(){} // boş iş
+    Snake(Pixel i, MCUFRIEND_kbv tft){
+        this->headPixel = i;
+        this->tailPixel = this->headPixel;
+        this->oldTailPixel = this->tailPixel;
+        
         this->tft = tft;
     }
     
-    void go(){}
+    void go(int x_change, int y_change){        
+        this->oldTailPixel = this->tailPixel;
+        // sağa shift
+        for (int i = snakeLength-1; 0 < i; i--){
+            this->snakeParts[i] = this->snakeParts[i-1];
+        }
+
+        this->tailPixel = this->snakeParts[snakeLength];
+        this->headPixel.x += x_change;
+        this->headPixel.y += y_change;
+    }
 
     void update(){
+        this->tailPixel = this->snakeParts[snakeLength];
+        this->headPixel = this->snakeParts[0];
+        
         switch (next_dir){
         case RIGHT:
             if (this->headPixel.x <= (SNAKEX_NUM - 4)){ // sağa çarpıyor muyuz
-                head->x++; // sadece kafanın değil listemizdeki tüm pixellerin değerlerinin artması gerrekiyor gelince yazcam
-            } 
-            else tft.fillScreen(WHITE);
+                this->go(1, 0);
+            } else tft.fillScreen(WHITE);
             break;
 
         case DOWN:
             if (this->headPixel.y <= (SNAKEY_NUM - 4)){ // aşağı çarpıyor muyuz
-                head->y++;
-            }
-            else tft.fillScreen(WHITE)
+                this->go(0, 1);
+            } else tft.fillScreen(WHITE);
             break;
 
         case LEFT:
             if (this->headPixel.x != 0){ // sola çarpıyor muyuz
-                head->x--;
-            }
-            else tft.fillScreen(WHITE)
+                this->go(-1, 0);
+            } else tft.fillScreen(WHITE);
             break;
 
         case UP:
             if (this->headPixel.y != 0){ // yukarı çarpıyor muyuz
-                head->y--; 
-            }
-            else tft.fillScreen(WHITE)            
+                this->go(0, -1);
+            } else tft.fillScreen(WHITE);
             break;
-        }
+        } // tuvalete gidip gelcem
 
         if (this->oldSnakeLength != this->snakeLength){         // Eğer uzunluk değişmişse
-            Pixel new_array [this->snakeLength];                // Yeni uzunlukta array oluştur
-            for (int i = 0; i < this->oldSnakeLength; i++){     // Eski elemanların her biri için
-                new_array[i] = this->snakeParts[i];             // Eski elemanı yeni elemana ata
+            Pixel* new_array = new Pixel[snakeLength];          // Yeni uzunlukta yeni bir array oluştur
+            
+            for (int i = 0; i < this->snakeLength; i++) {   // Eski arraydeki her eleman için
+                new_array[i] = this->snakeParts[i];         // Elemanı yeni listeye ata
             }
-            this->snakeParts = new_array;                       // Yeni arrayi classa yaz
-            this->oldSnakeLength = this->snakeLength;           // Eski değeri yenile
-
-            this->snakeParts[snakeLength] = ;//gelcem bekle
+            
+            delete [] this->snakeParts;             // eski arrayi temizle
+            this->snakeParts = new_array;           // snakeParts uzatıdlı
+        } else { // Uzunluk değişmemişse
+            printSnakePixel(this->oldTailPixel.x, this->oldTailPixel.y, empty_id, tft);   // Eski pixeli sil
         }
 
-        else{ // Uzunluk değişmemişse
-            printSnakePixel(this->tailPixel.x, this->tailPixel.y, empty_id, tft);   // Eski pixeli sil
-
-        }
-
-
-
-        printSnakePixel(head->x, head->y, snake_id, tft); // yeni pixeli yaz
+        printSnakePixel(this->headPixel.x, this->headPixel.y, snake_id, tft); // yeni pixeli yaz
     }
 
 };
+
+
 
 
 // yılan şeylerini çizdirme
@@ -168,7 +185,7 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
     String r_key = ""; // bilmiyorum
 
     printSnakeMenu(tft); // mavi çizgiler
-    printSnakePixel(head->x, head->y, snake_id, tft);
+    // printSnakePixel(head->x, head->y, snake_id, tft);
     
     Pixel startingPixel(5, 5, empty_id);
     Snake snake(startingPixel, tft);
@@ -194,13 +211,13 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
         ////////////////////////////////////////////////////
         snake.cur_dir = snake.next_dir;
 
-        if (key.compareTo("right") == 0 && cur_dir != LEFT)
+        if (key.compareTo("right") == 0 && snake.cur_dir != LEFT)
             snake.next_dir = RIGHT;
-        else if (key.compareTo("down") == 0 && cur_dir != UP)
+        else if (key.compareTo("down") == 0 && snake.cur_dir != UP)
             snake.next_dir = DOWN;
-        else if (key.compareTo("left") == 0 && cur_dir != RIGHT)
+        else if (key.compareTo("left") == 0 && snake.cur_dir != RIGHT)
             snake.next_dir = LEFT;
-        else if (key.compareTo("up") == 0 && cur_dir != DOWN)
+        else if (key.compareTo("up") == 0 && snake.cur_dir != DOWN)
             snake.next_dir = UP;
         else if (key.compareTo("next") == 0)
             snake.next_dir = STOP;
@@ -208,7 +225,7 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
         if (key.compareTo("back") == 0)
             return;
     
-        snake.update()
+        snake.update();
 
         // printSnakePixel(old_head->x, old_head->y, empty_id, tft); // eski pixeli sil
         // printSnakePixel(head->x, head->y, snake_id, tft); // yeni pixeli yaz
@@ -236,6 +253,3 @@ void printSnakePixel(int x, int y, int status, MCUFRIEND_kbv tft){
             status);
     }
 }
-
-
-void printGameOver();
