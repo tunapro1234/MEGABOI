@@ -108,14 +108,13 @@ class Snake{
         this->snakeParts[0].x += x_change;
         this->snakeParts[0].y += y_change;
 
-
         this->tailPixel = this->snakeParts[snakeLength-1];
         this->headPixel = this->snakeParts[0];
 
-        if (snakeParts[0].x == 0 && snakeParts[0].y == 0){
+        if (snakeParts[0].x == 2 && snakeParts[0].y == 2){
             this->snakeLength++; 
+            Serial.println("Uzunluk arttırıldı...");
         }
-        // Serial.println("New location of head: " + String(this->headPixel.x) + " " + String(this->headPixel.y));
     }
 
     void update(){
@@ -128,45 +127,46 @@ class Snake{
             if (this->headPixel.x <= (SNAKEX_NUM - 4)) this->go(1, 0); // sağa çarpıyor muyuz
             else {
                 tft.fillScreen(RED);
-                return;
+                while(1){}
             } break;
 
         case DOWN:
             if (this->headPixel.y <= (SNAKEY_NUM - 4)) this->go(0, 1); // aşağı çarpıyor muyuz
             else {
                 tft.fillScreen(RED);
-                return;
+                while(1){}
             } break;
 
         case LEFT:
             if (this->headPixel.x != 0) this->go(-1, 0); // sola çarpıyor muyuz
             else {
                 tft.fillScreen(RED);
-                return;
+                while(1){}
             } break;
 
         case UP:
             if (this->headPixel.y != 0) this->go(0, -1); // yukarı çarpıyor muyuz
             else {
                 tft.fillScreen(RED);
-                return;
+                while(1){}
             } break;
         } // tuvalete gidip gelcem
         
         if (this->oldSnakeLength != this->snakeLength){         // Eğer uzunluk değişmişse
+            this->oldSnakeLength = this->snakeLength;
             Pixel* new_array = new Pixel[snakeLength];          // Yeni uzunlukta yeni bir array oluştur
             
-            for (int i = 0; i < this->snakeLength; i++) {   // Eski arraydeki her eleman için
-                new_array[i] = this->snakeParts[i];         // Elemanı yeni listeye ata
+            for (int i = 0; i < this->oldSnakeLength; i++) {    // Eski arraydeki her eleman için
+                new_array[i] = this->snakeParts[i];             // Elemanı yeni listeye ata
             }
-            
-            delete [] this->snakeParts;             // eski arrayi temizle
-            this->snakeParts = new_array;           // snakeParts uzatıldı
-        } else if (this->next_dir != STOP){ // Uzunluk değişmemişse
-            // Serial.println("snake.oldTailPixel -> " + String(this->oldTailPixel.x) + " " + String(this->oldTailPixel.y));
+            new_array[snakeLength-1] = this->oldTailPixel;  // Yeni arrayin sonuna kuyruğun sonunu ekle
+            this->tailPixel = this->oldTailPixel;           // Eklenen eski kuyruk yeni kuyruk haline geldi
+            delete [] this->snakeParts;                     // eski arrayi temizle
+            this->snakeParts = new_array;                   // snakeParts uzatıldı
+        } 
+        else if (this->next_dir != STOP){ // Uzunluk değişmemişse
             this->oldTailPixel.erase();
         }
-        // Serial.println("snake.headPixel -> " + String(this->headPixel.x) + " " + String(this->headPixel.y));
         this->headPixel.draw();
     }
 };
