@@ -1,5 +1,4 @@
 #include "MCUFRIEND_kbv.h"
-#include "get_key.h"
 // #include "printGameOver.h"
 // #include "get_key.h"
 
@@ -21,7 +20,6 @@ sakat mali hg
 boş bulduk kardeşim
 
 */
-
 const int apple_id = 0;
 const int snake_id = 1;
 const int empty_id = 2;
@@ -37,12 +35,12 @@ const int empty_id = 2;
 #define YELLOW 0xFFE0
 #define WHITE 0xFFFF
 #define CYAN 0x07FF
+#define RED 0xF800
 
 // snake fonksiyonları
 void openSnakeMenu(MCUFRIEND_kbv);
 void printSnakeMenu(MCUFRIEND_kbv);
 void printSnakePixel(int, int, String, MCUFRIEND_kbv);
-
 
 // Pixel classı
 class Pixel{
@@ -50,13 +48,21 @@ class Pixel{
         int x;
         int y;
         int state;
-    
-    Pixel(){}
-    Pixel(int x, int y, int state){
+        MCUFRIEND_kbv tft;
+
+    Pixel(){}  
+    Pixel(int x, int y, int state, MCUFRIEND_kbv tft){
         this->x = x;
         this->y = y;
         this->state = state;
+        this->tft = tft;
     }  
+    
+    void draw(){
+        printSnakePixel(this->x, this->y, this->state, tft);
+    } void erase(){
+        printSnakePixel(this->x, this->y, empty_id, tft);
+    }
 };
 
 enum Direction {
@@ -69,7 +75,6 @@ enum Direction {
 
 class Snake{
     public:
-        // int max_snake = (SNAKEX_NUM-2)*(SNAKEY_NUM-2);
         int oldSnakeLength = 1;
         int snakeLength = 1;
         
@@ -85,56 +90,69 @@ class Snake{
         MCUFRIEND_kbv tft;
 
     Snake(){} // boş iş
-    Snake(Pixel i, MCUFRIEND_kbv tft){
-        this->headPixel = i;
-        this->tailPixel = this->headPixel;
-        this->oldTailPixel = this->tailPixel;
+    Snake(Pixel startingSnakePixel, MCUFRIEND_kbv tft){
+        this->headPixel = startingSnakePixel;
+        this->tailPixel = startingSnakePixel;
+        this->oldTailPixel = startingSnakePixel;
         
+        this->snakeParts[0] = this->headPixel;
         this->tft = tft;
     }
     
-    void go(int x_change, int y_change){        
+    void go(int x_change, int y_change){ 
         this->oldTailPixel = this->tailPixel;
         // sağa shift
         for (int i = snakeLength-1; 0 < i; i--){
             this->snakeParts[i] = this->snakeParts[i-1];
         }
+        this->snakeParts[0].x += x_change;
+        this->snakeParts[0].y += y_change;
 
-        this->tailPixel = this->snakeParts[snakeLength];
-        this->headPixel.x += x_change;
-        this->headPixel.y += y_change;
+
+        this->tailPixel = this->snakeParts[snakeLength-1];
+        this->headPixel = this->snakeParts[0];
+
+        if (snakeParts[0].x == 0 && snakeParts[0].y == 0){
+            this->snakeLength++; 
+        }
+        // Serial.println("New location of head: " + String(this->headPixel.x) + " " + String(this->headPixel.y));
     }
 
     void update(){
-        this->tailPixel = this->snakeParts[snakeLength];
-        this->headPixel = this->snakeParts[0];
+        // Serial.println("HEAD: " + String(this->headPixel.x) + " " + String(this->headPixel.y));
+        // Serial.println("TAIL: " + String(this->tailPixel.x) + " " + String(this->tailPixel.y));
+        // Serial.println("OLDTAIL: " + String(this->oldTailPixel.x) + " " + String(this->oldTailPixel.y));
         
         switch (next_dir){
         case RIGHT:
-            if (this->headPixel.x <= (SNAKEX_NUM - 4)){ // sağa çarpıyor muyuz
-                this->go(1, 0);
-            } else tft.fillScreen(WHITE);
-            break;
+            if (this->headPixel.x <= (SNAKEX_NUM - 4)) this->go(1, 0); // sağa çarpıyor muyuz
+            else {
+                tft.fillScreen(RED);
+                return;
+            } break;
 
         case DOWN:
-            if (this->headPixel.y <= (SNAKEY_NUM - 4)){ // aşağı çarpıyor muyuz
-                this->go(0, 1);
-            } else tft.fillScreen(WHITE);
-            break;
+            if (this->headPixel.y <= (SNAKEY_NUM - 4)) this->go(0, 1); // aşağı çarpıyor muyuz
+            else {
+                tft.fillScreen(RED);
+                return;
+            } break;
 
         case LEFT:
-            if (this->headPixel.x != 0){ // sola çarpıyor muyuz
-                this->go(-1, 0);
-            } else tft.fillScreen(WHITE);
-            break;
+            if (this->headPixel.x != 0) this->go(-1, 0); // sola çarpıyor muyuz
+            else {
+                tft.fillScreen(RED);
+                return;
+            } break;
 
         case UP:
-            if (this->headPixel.y != 0){ // yukarı çarpıyor muyuz
-                this->go(0, -1);
-            } else tft.fillScreen(WHITE);
-            break;
+            if (this->headPixel.y != 0) this->go(0, -1); // yukarı çarpıyor muyuz
+            else {
+                tft.fillScreen(RED);
+                return;
+            } break;
         } // tuvalete gidip gelcem
-
+        
         if (this->oldSnakeLength != this->snakeLength){         // Eğer uzunluk değişmişse
             Pixel* new_array = new Pixel[snakeLength];          // Yeni uzunlukta yeni bir array oluştur
             
@@ -143,52 +161,26 @@ class Snake{
             }
             
             delete [] this->snakeParts;             // eski arrayi temizle
-            this->snakeParts = new_array;           // snakeParts uzatıdlı
-        } else { // Uzunluk değişmemişse
-            printSnakePixel(this->oldTailPixel.x, this->oldTailPixel.y, empty_id, tft);   // Eski pixeli sil
+            this->snakeParts = new_array;           // snakeParts uzatıldı
+        } else if (this->next_dir != STOP){ // Uzunluk değişmemişse
+            // Serial.println("snake.oldTailPixel -> " + String(this->oldTailPixel.x) + " " + String(this->oldTailPixel.y));
+            this->oldTailPixel.erase();
         }
-
-        printSnakePixel(this->headPixel.x, this->headPixel.y, snake_id, tft); // yeni pixeli yaz
+        // Serial.println("snake.headPixel -> " + String(this->headPixel.x) + " " + String(this->headPixel.y));
+        this->headPixel.draw();
     }
-
 };
-
-
-
-
-// yılan şeylerini çizdirme
-void printSnakeMenu(MCUFRIEND_kbv tft){ // ızgara çizdirme
-    for (int i = 1; i <= (SNAKEY_NUM - 1); i++)
-    {
-            tft.drawLine(
-            ((tft.width() / SNAKEX_NUM) + SNAKESLIDEX),
-            ((tft.height() / SNAKEY_NUM) * i),
-            (((tft.width() / SNAKEX_NUM) * (SNAKEX_NUM - 1)) + SNAKESLIDEX),
-            ((tft.height() / SNAKEY_NUM) * i),
-            DARKCYAN);
-    }
-
-    for (int i = 1; i <= (SNAKEX_NUM - 1); i++)
-    {
-        tft.drawLine(
-            (((tft.width() / SNAKEX_NUM) * i) + SNAKESLIDEX),
-            (tft.height() / SNAKEY_NUM),
-            (((tft.width() / SNAKEX_NUM) * i) + SNAKESLIDEX),
-            ((tft.height() / SNAKEY_NUM) * (SNAKEY_NUM - 1)),
-            DARKCYAN);
-    }
-}
 
 void openSnakeMenu(MCUFRIEND_kbv tft){
     tft.fillScreen(DEFAULT_SNAKE_MENU_COLOR);
 
     String r_key = ""; // bilmiyorum
+    
+    Pixel startingSnakePixel(5, 5, snake_id, tft);
+    Snake snake(startingSnakePixel, tft);
 
     printSnakeMenu(tft); // mavi çizgiler
-    // printSnakePixel(head->x, head->y, snake_id, tft);
-    
-    Pixel startingPixel(5, 5, empty_id);
-    Snake snake(startingPixel, tft);
+    printSnakePixel(snake.headPixel.x, snake.headPixel.x, snake_id, tft);
     
     String key;
 
@@ -201,8 +193,7 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
                 r_key = key;
             long elapsed = millis() - start_key;
 
-            if (elapsed >= wait_time_snake)
-            {
+            if (elapsed >= wait_time_snake){
                 if (r_key != "")
                     key = r_key;
                 break;
@@ -224,11 +215,32 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
 
         if (key.compareTo("back") == 0)
             return;
-    
+        
+        // Serial.println("KEY: " + key);
         snake.update();
+    }
+}
 
-        // printSnakePixel(old_head->x, old_head->y, empty_id, tft); // eski pixeli sil
-        // printSnakePixel(head->x, head->y, snake_id, tft); // yeni pixeli yaz
+// yılan şeylerini çizdirme
+void printSnakeMenu(MCUFRIEND_kbv tft){ // ızgara çizdirme
+    for (int i = 1; i <= (SNAKEY_NUM - 1); i++)
+    {
+            tft.drawLine(
+            ((tft.width() / SNAKEX_NUM) + SNAKESLIDEX),
+            ((tft.height() / SNAKEY_NUM) * i),
+            (((tft.width() / SNAKEX_NUM) * (SNAKEX_NUM - 1)) + SNAKESLIDEX),
+            ((tft.height() / SNAKEY_NUM) * i),
+            DARKCYAN);
+    }
+
+    for (int i = 1; i <= (SNAKEX_NUM - 1); i++)
+    {
+        tft.drawLine(
+            (((tft.width() / SNAKEX_NUM) * i) + SNAKESLIDEX),
+            (tft.height() / SNAKEY_NUM),
+            (((tft.width() / SNAKEX_NUM) * i) + SNAKESLIDEX),
+            ((tft.height() / SNAKEY_NUM) * (SNAKEY_NUM - 1)),
+            DARKCYAN);
     }
 }
 
