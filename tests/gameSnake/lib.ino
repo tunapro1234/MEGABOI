@@ -87,6 +87,49 @@ enum Direction {
     UP = 4
 };
 
+
+class Apple{
+    public:
+        Pixel cur_apple;
+        Pixel* snakeParts;
+        int snakeLength;
+        MCUFRIEND_kbv tft;
+
+    Apple(){}
+    Apple(Pixel* snakeParts, int snakeLength, MCUFRIEND_kbv tft){
+        this->snakeLength = snakeLength;
+        this->snakeParts = snakeParts;
+        this->tft = tft;
+    }
+    void update(Pixel* snakeParts, int snakeLength){
+        this->snakeLength = snakeLength;
+        this->snakeParts = snakeParts;
+    }
+    void generate(){
+        int rand_x;
+        int rand_y;
+        bool isSuitable;
+        
+        while(true){
+            randomSeed(analogRead(A8));
+            rand_x = (int)random(0, SNAKEX_NUM-2);
+            rand_y = (int)random(0, SNAKEY_NUM-2);
+            Serial.println("RANDOM: " + String(rand_x) + " " + String(rand_y));
+            isSuitable = true;
+            
+            for(int i = 0; i < this->snakeLength; i++){
+                if (rand_x == this->snakeParts[i].x && rand_x == this->snakeParts[i].x){
+                    isSuitable = false;        
+                }
+            } if(isSuitable == true) break;
+        }
+        Pixel generated_apple = Pixel(rand_x, rand_y, apple_id, this->tft);
+        this->cur_apple = generated_apple;
+        this->cur_apple.draw();
+    }
+};
+
+
 class Snake{
     public:
         int oldSnakeLength = 1;
@@ -149,9 +192,11 @@ class Snake{
         }
         // Serial.println("");
         
+        Serial.println("APPLE: (" + String(apple1.cur_apple.x) + ", " + String(apple1.cur_apple.y) + ")");
         if(apple1.cur_apple.x == this->headPixel.x && apple1.cur_apple.y == this->headPixel.y){ // Eğer elma yersek uza
-            Serial.println("APPLE: (" + String(apple1.cur_apple.x) + ", " + String(apple1.cur_apple.y) + ")");
+            // Serial.println("APPLE: (" + String(apple1.cur_apple.x) + ", " + String(apple1.cur_apple.y) + ")");
             this->extend();
+            apple1.update(this->snakeParts, this->snakeLength);
             apple1.generate();
         }
         // for (int i = 0; i < SNAKEX_NUM-2; i++){ // snake pixeller temizleniyor 
@@ -231,41 +276,6 @@ class Snake{
 };
 
 
-class Apple{
-    public:
-        Pixel cur_apple;
-        Snake snake;
-        MCUFRIEND_kbv tft;
-
-    Apple(){}
-    Apple(Snake snake, MCUFRIEND_kbv tft){
-        this->snake = snake;
-        this->tft = tft;
-    }
-    void generate(){
-        int rand_x;
-        int rand_y;
-        bool isSuitable;
-        
-        while(true){
-            randomSeed(analogRead(A8));
-            rand_x = (int)random(0, SNAKEX_NUM-2);
-            rand_y = (int)random(0, SNAKEY_NUM-2);
-            Serial.println("RANDOM: " + String(rand_x) + " " + String(rand_y));
-            isSuitable = true;
-            
-            for(int i = 0; i < snake.snakeLength; i++){
-                if (rand_x == snake.snakeParts[i].x && rand_x == snake.snakeParts[i].x){
-                    isSuitable = false;        
-                }
-            } if(isSuitable == true) break;
-        }
-        Pixel generated_apple = Pixel(rand_x, rand_y, apple_id, this->tft);
-        generated_apple.draw();
-        this->cur_apple = generated_apple;
-    }
-};
-
 // Pixel generate_apple(Snake snake, MCUFRIEND_kbv tft){
 //     int rand_x;
 //     int rand_y;
@@ -302,7 +312,7 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
     Snake snake(startingSnakePixel, tft);
     // current_apple = generate_apple(snake, tft);
     // Pixel current_apple = generate_apple(snake, tft);
-    Apple apple1(snake, tft);
+    Apple apple1(snake.snakeParts, snake.snakeLength, tft);
     apple1.generate();
     Serial.println("APPLE: (" + String(apple1.cur_apple.x) + ", " + String(apple1.cur_apple.y) + ")");
 
