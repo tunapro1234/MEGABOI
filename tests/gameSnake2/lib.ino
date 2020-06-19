@@ -1,31 +1,6 @@
 #include "MCUFRIEND_kbv.h"
 // #include "printGameOver.h"
-// #include "get_key.h"
 
-/* 
-
-***KAYRA KÖLESİNE YAPTIRILACAK İŞLER***
-1) 2 TANE PİXEL ARRAY OLUŞTURULACAK (SNAKE VE EKRAN İÇİN)
-1) Snake için LinkedList oluşturabiliriz (x, y, next) 
-
-2) 3 PİXEL DURUMU OLUŞTURULACAK (EMPTY, SNAKE, FOOD)
-
-3) SNAKE PİXEL ARRAYİNİN İÇİNDE YILANIN ŞU AN KAPSADIĞI TÜM PİXELLER VE KAFANIN VE KUYRUĞUN PİXEL DEĞERİ TUTULACAK
-
-4) YILANLA KESİŞMEYEN BİR PİKSEL BULUNANA KADAR RANDOM FONKSİYONU İLE RASTGELE ELMA OLUŞTURCAZ
-
-5) YILAN ELMAYI YEMEDİĞİNDE KUYRUK SİLİNECEK
-
-Tüm ekranı şey yapma olmuyor deliriyorum
-
-sakat mali hg
-boş bulduk kardeşim
-
-Yukardaki todoyu boşver:
-    1) Apple generator
-    2) Durdurup ters yöne gidebiliyoruz
-
-*/
 const int apple_id = 0;
 const int snake_id = 1;
 const int empty_id = 2;
@@ -87,18 +62,16 @@ enum Direction {
     UP = 4
 };
 
+Pixel curr_apple(0, 0, apple_id, tft);
 
 class Apple{
     public:
-        Pixel* cur_apple;
         Pixel* snakeParts;
         int snakeLength;
         MCUFRIEND_kbv tft;
 
     Apple(){}
     Apple(Pixel* snakeParts, int snakeLength, MCUFRIEND_kbv tft){
-        Pixel a(0, 0, apple_id, tft);
-        this->cur_apple = &a;
         this->snakeLength = snakeLength;
         this->snakeParts = snakeParts;
         this->tft = tft;
@@ -107,7 +80,10 @@ class Apple{
         this->snakeLength = snakeLength;
         this->snakeParts = snakeParts;
     }
-    void generate(){
+    void print(){
+        Serial.println("APPLE VALUES: " + String(curr_apple.x) + ", " + String(curr_apple.y));
+    }
+    Pixel generate(){
         Serial.println("GENERATE");
         int rand_x;
         int rand_y;
@@ -126,14 +102,8 @@ class Apple{
                 }
             } if(isSuitable == true) break;
         }
-        // this->cur_apple.update(rand_x, rand_y);
-        // Serial.println(cur_apple->x);
-        
-        Pixel generated_apple = Pixel(rand_x, rand_y, apple_id, this->tft);
-        this->cur_apple = &generated_apple;
-        Serial.println("APPLE: (" + String(this->cur_apple->x) + ", " + String(this->cur_apple->y) + ") ");
-        // Serial.println(this->cur_apple);
-        this->cur_apple->draw();
+        Pixel generated_apple = Pixel(rand_x, rand_y, apple_id, tft);
+        return generated_apple;
     }
 };
 
@@ -166,7 +136,6 @@ class Snake{
     
     void extend(){
         this->snakeLength++;
-        // this->oldSnakeLength = this->snakeLength;
         Pixel* new_array = new Pixel[snakeLength];          // Yeni uzunlukta yeni bir array oluştur
         
         for (int i = 0; i < this->oldSnakeLength; i++) {    // Eski arraydeki her eleman için
@@ -189,45 +158,25 @@ class Snake{
         this->tailPixel = this->snakeParts[snakeLength-1];
         this->headPixel = this->snakeParts[0];
 
-
         for (int i = 1; i < snakeLength; i++){
-            // Serial.print("(" + String(this->snakeParts[i].x) + ", " + String(this->snakeParts[i].y) + "), ");
-            
             if (this->snakeParts[0].x == this->snakeParts[i].x && this->snakeParts[0].y == this->snakeParts[i].y){
                 printGameOver(tft);
                 return;
             }
         }
-        // Serial.println("");
         
-        Serial.println("CURRENT APPLE: (" + String(apple1.cur_apple->x) + ", " + String(apple1.cur_apple->y) + ") ");
-        if(apple1.cur_apple->x == this->headPixel.x && apple1.cur_apple->y == this->headPixel.y){ // Eğer elma yersek uza
-            // Serial.println("APPLE: (" + String(apple1.cur_apple.x) + ", " + String(apple1.cur_apple.y) + ")");
+        Serial.println("CURRENT APPLE: (" + String(curr_apple.x) + ", " + String(curr_apple.y) + ") ");
+
+        if(curr_apple.x == this->headPixel.x && curr_apple.y == this->headPixel.y){ // Eğer elma yersek uza
             this->extend();
             apple1.update(this->snakeParts, this->snakeLength);
-            apple1.generate();
+            /////////////////////////////////////
+            curr_apple = apple1.generate();
+            curr_apple.draw();
         }
-        // for (int i = 0; i < SNAKEX_NUM-2; i++){ // snake pixeller temizleniyor 
-        //     for (int j = 0; j < SNAKEX_NUM-2; j++){ // çok sıkıntı yarattı be
-        //         if(allPixels[i][j] == snake_id){
-        //             allPixels[i][j] = empty_id;
-        //         }
-        //     }
-        // } for (int i = 0; i < snakeLength; i++){ // snake pixeller baştan çiziliyor
-        //     allPixels[this->snakeParts[snakeLength].x][this->snakeParts[snakeLength].y] = snake_id;
-        //     // Serial.println(String(allPixels[this->snakeParts[snakeLength].x][this->snakeParts[snakeLength].y]) + " " + this->snakeParts[snakeLength].x + " " + this->snakeParts[snakeLength].y);
-        // } if (allPixels[this->headPixel.x][this->headPixel.y] == apple_id) this->snakeLength++;
-        
-        // else if (allPixels[this->headPixel.x][this->headPixel.y] == snake_id){
-        //     Serial.println("SNAKE EATS HIS OWN TAIL..." + String(millis()));
-        // }
-        // if (this->headPixel.x == 2 && this->headPixel.y == 2) this->snakeLength++;
     }
 
     void update(Apple apple1){
-        // Serial.println("HEAD: " + String(this->headPixel.x) + " " + String(this->headPixel.y));
-        // Serial.println("TAIL: " + String(this->tailPixel.x) + " " + String(this->tailPixel.y));
-        // Serial.println("OLDTAIL: " + String(this->oldTailPixel.x) + " " + String(this->oldTailPixel.y));
         this->oldSnakeLength = this->snakeLength;
         
         switch (next_dir){
@@ -259,22 +208,6 @@ class Snake{
                 return;
             } break;
         } // yemek yiyip gelcem
-        
-        // if (this->oldSnakeLength != this->snakeLength){         // Eğer uzunluk değişmişse
-            // this->oldSnakeLength = this->snakeLength;
-            // Pixel* new_array = new Pixel[snakeLength];          // Yeni uzunlukta yeni bir array oluştur
-            
-            // for (int i = 0; i < this->oldSnakeLength; i++) {    // Eski arraydeki her eleman için
-            //     new_array[i] = this->snakeParts[i];             // Elemanı yeni listeye ata
-            // }
-            // new_array[snakeLength-1] = this->oldTailPixel;  // Yeni arrayin sonuna kuyruğun sonunu ekle
-            // this->tailPixel = this->oldTailPixel;           // Eklenen eski kuyruk yeni kuyruk haline geldi
-            // delete [] this->snakeParts;                     // eski arrayi temizle
-            // this->snakeParts = new_array;                   // snakeParts uzatıldı
-        // } // gereksiz fazla karmaşıklaşıyor delircem
-        // else if (this->next_dir != STOP){ // Uzunluk değişmemişse
-        //     this->oldTailPixel.erase();
-        // }
 
         if (this->oldSnakeLength == this->snakeLength && this->next_dir != STOP)         // Eğer uzunluk değişmişse
             this->oldTailPixel.erase();
@@ -283,47 +216,15 @@ class Snake{
     }
 };
 
-
-// Pixel generate_apple(Snake snake, MCUFRIEND_kbv tft){
-//     int rand_x;
-//     int rand_y;
-//     bool isSuitable;
-    
-//     while(true){
-//         rand_x = (int)random(0, SNAKEX_NUM-2);
-//         rand_y = (int)random(0, SNAKEY_NUM-2);
-//         isSuitable = true;
-        
-//         for(int i = 0; i < snake.snakeLength; i++){
-//             if (rand_x == snake.snakeParts[i].x && rand_x == snake.snakeParts[i].x){
-//                 isSuitable = false;        
-//             }
-//         } if(isSuitable == true) break;
-//     }
-//     Pixel generated_apple(rand_x, rand_y, apple_id, tft);
-//     generated_apple.draw();
-//     return generated_apple;
-// }
-
 void openSnakeMenu(MCUFRIEND_kbv tft){
     tft.fillScreen(DEFAULT_SNAKE_MENU_COLOR);
 
     String r_key = ""; // bilmiyorum
-    
-    // for (int i = 0; i < SNAKEX_NUM-2; i++){
-    //     for (int j = 0; j < SNAKEX_NUM-2; j++){
-    //         allPixels[i][j] = empty_id;
-    //     }
-    // }
-
     Pixel startingSnakePixel(5, 5, snake_id, tft);
     Snake snake(startingSnakePixel, tft);
-    // current_apple = generate_apple(snake, tft);
-    // Pixel current_apple = generate_apple(snake, tft);
     Apple apple1(snake.snakeParts, snake.snakeLength, tft);
-    apple1.generate();
-    // Serial.println("APPLE: (" + String(apple1.cur_apple->x) + ", " + String(apple1.cur_apple->y) + ")");
-
+    curr_apple = apple1.generate();
+    curr_apple.draw();
 
     printSnakeMenu(tft); // mavi çizgiler
     printSnakePixel(snake.headPixel.x, snake.headPixel.x, snake_id, tft);
@@ -361,7 +262,8 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
 
         if (key.compareTo("back") == 0)
             return;
-
+        
+        apple1.print();
         snake.update(apple1);
     }
 }
