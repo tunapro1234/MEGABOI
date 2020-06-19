@@ -6,13 +6,13 @@ C++ çok etkin olduğum bir dil değil o yüzden sıkıntı çekmiyorum desem ya
 Libraries klasörü içinde ekran için gerekli libraryler var onları direkt olarak C:/Users/%username%/Documents/Arduino/libraires klasörünün içine atabilirsiniz
 
 
-    * 2.4" TFT LCD Dokunmatik Ekran Shield Sd kart dahil
+    2.4" TFT LCD Dokunmatik Ekran Shield Sd kart dahil
     
-    * 6 buton
+    6 buton
     
-    * esp8266 (Serial0'a bağlı)
+    esp8266 (Serial0'a bağlı)
     
-    * Fat32 formatlı sd kart
+    Fat32 formatlı sd kart
 
 
 
@@ -28,10 +28,4 @@ Kodun en başında hangi butonun hangi pine bağlandığı tanımlanıyor. Buton
 
 Sd kart olayı megada işkence gibi modifiye ettim ama çalışmadı o yüzden sanal spi tarzında bir şey yapmak gerekiyor [buradan](https://learn.adafruit.com/adafruit-data-logger-shield/for-the-mega-and-leonardo) nasıl yapıldığına bakabilirsiniz
 
-## Snake işkence gibi lütfen yardım edin
-Şimdi, `openSnakeMenu` fonksiyonu snake oyununu başlatıyor, `printSnakeMenu` fonksiyonu ızgarayı çiziyor, `printSnakePixel` fonksiyonu ise ilk parametre olarak x, ikince parametre olarak y, üçüncü parametre olarak da ne renk olacağını alıyor ve oraya nokta koyuyor. apple_id, snake_id ve empty_id integer değere sahip değişkenler, değerleri kodun başında belirlendi `printSnakePixel` o değerlere bakar. Yukarı aşağı sağ sol ilerlemede sıkıntı yok, duvara çarpınca bitiyor ama random elma oluşturma ve snakein uzama işlerine bakamadım çünkü bu aletin kumanda kısmını bir tık daha acil görüyorum. `printGameOver` sadece GameOver yazısını yazdırır fonksiyonu çağırdıktan sonra openSnakeMenu fonksiyonun da kapanması gerekli (`printGameOver()` dan sonra `return;` ekleyin).
-
-
-Büyük sıkıntılardan biri bütün ekranın sıfırlanması 2 saniye filan sürüyor, bu nedenle her seferinde ekranı yenilemektense *eski yılan bloklarının `printSnakePixel(x, y, empty_id)` ile silinmesi gerekiyor*
-
-Izgara üzerindeki blok sayısı dinamik ve muhtemelen çalışır ama denemeye çok üşeniyorum 16x22 ve tam kare gibi duruyor galiba hesaplamıştım 
+Snake bitti mario filan gelcek varsa bana ulaşın instagram: @tunapro1234
