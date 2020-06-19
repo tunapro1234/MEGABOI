@@ -95,6 +95,10 @@ void printTestMenu(MCUFRIEND_kbv tft){
     w_menu = 1;
     tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
     tft.print("ESP8266");
+
+    w_menu = 2;
+    tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+    tft.print("SD TEST");
     
     w_menu = MAX_MENU_NUM - 1;
     tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
