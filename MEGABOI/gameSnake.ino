@@ -17,6 +17,13 @@ const int SNAKEY_NUM = 24; // yılan oyununda yatay çizgilerin sayısı -2 (din
 #define CYAN 0x07FF
 #define RED 0xF800
 
+#ifdef __arm__ // memory ölçme
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif  // __arm__
+
 class Snake;
 class Pixel;
 class Apple;
@@ -25,6 +32,17 @@ class Apple;
 void openSnakeMenu(MCUFRIEND_kbv);
 void printSnakeMenu(MCUFRIEND_kbv);
 void printSnakePixel(int, int, String, MCUFRIEND_kbv);
+
+int freeMemory() {
+    char top;
+    #ifdef __arm__
+    return &top - reinterpret_cast<char*>(sbrk(0));
+    #elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+    return &top - __brkval;
+    #else  // __arm__
+    return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+    #endif  // __arm__
+}
 
 // Pixel classı
 class Pixel{
@@ -236,8 +254,8 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
             }
         }
         ////////////////////////////////////////////////////
-        snake.cur_dir = snake.next_dir;
-
+        if (snake.next_dir != STOP)
+            snake.cur_dir = snake.next_dir;
         if (key.compareTo("right") == 0 && snake.cur_dir != LEFT)
             snake.next_dir = RIGHT;
         else if (key.compareTo("down") == 0 && snake.cur_dir != UP)
@@ -251,7 +269,9 @@ void openSnakeMenu(MCUFRIEND_kbv tft){
 
         if (key.compareTo("back") == 0)
             return;
-        
+
+        Serial.println("FREE MEMORY: " + String(freeMemory()));
+
         apple1.print();
         if (snake.update(apple1) == 1){
             printGameOver(tft);

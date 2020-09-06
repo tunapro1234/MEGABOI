@@ -70,6 +70,11 @@ void openTestMenu(MCUFRIEND_kbv tft){
                     openSDTestMenu(tft);
                     cursor = 2;
                     break;
+                
+                case 3:
+                    openSnakeLMenu(tft);
+                    cursor = 3;
+                    break;
 
                 case MAX_MENU_NUM - 1:
                     return;
@@ -98,7 +103,11 @@ void printTestMenu(MCUFRIEND_kbv tft){
 
     w_menu = 2;
     tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
-    tft.print("SD TEST");
+    tft.print("SD TEST");    
+
+    w_menu = 3;
+    tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+    tft.print("SNAKE-L");
     
     w_menu = MAX_MENU_NUM - 1;
     tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
