@@ -1,7 +1,7 @@
 #ifndef __GETKEY_H
 #define __GETKEY_H
 
-#include "../header.h"
+#include "../header.hpp"
 
 inline byte getKey() {
     if (analogRead(BUTTON_DOWN) < BUTTON_TOLERANCE)

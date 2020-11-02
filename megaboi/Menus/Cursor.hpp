@@ -1,7 +1,7 @@
 #ifndef __CURSOR_H
 #define __CURSOR_H
 
-#include "../header.h"
+#include "../header.hpp"
 
 inline void printCursor(MCUFRIEND_kbv& tft, const byte cursor, const int menuColor) {
     for (int i = 0; i <= MAX_MENU_NUM; i++) {

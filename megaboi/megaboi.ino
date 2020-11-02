@@ -1,4 +1,4 @@
-#include "Menus/MainMenu/MainMenu.h"
+#include "Menus/MainMenu/MainMenu.hpp"
 // çoğu şeyi enum yapmak isterdim ama PROGMEM olmuyor
 
 // fonksiyon dışında olması ne kadar iyi bilmiyorum

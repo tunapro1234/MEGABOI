@@ -1,9 +1,9 @@
 #ifndef __MAINMENU_H
 #define __MAINMENU_H
 
-#include "../../header.h"
-#include "../Cursor.h"
-#include "../getKey.h"
+#include "../../header.hpp"
+#include "../Cursor.hpp"
+#include "../getKey.hpp"
 
 class MainMenu {
    public:
