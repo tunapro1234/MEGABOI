@@ -1,6 +1,6 @@
 # Kod konusunda yardıma sonuna kadar açığım 
 
-Libraries klasörü içinde ekran için gerekli libraryler var onları direkt olarak C:/Users/%username%/Documents/Arduino/libraires klasörünün içine atabilirsiniz
+lib klasörü içinde ekran için gerekli libraryler var onları Arduino IDE Sketch > Include Library > Add .ZIP Library... yaparak ekleyebilirsiniz.
 
 1. Gereksinimler
     * 2.4" TFT LCD Dokunmatik Ekran Shield Sd kart dahil
