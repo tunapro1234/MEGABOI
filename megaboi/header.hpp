@@ -51,4 +51,41 @@
 
 #define wait_time 160  // Tuş hassasiyeti için bekleme süresi
 
+inline byte getKey() {
+    if (analogRead(BUTTON_DOWN) < BUTTON_TOLERANCE)
+        return KEY_DOWN;
+
+    else if (analogRead(BUTTON_UP) < BUTTON_TOLERANCE)
+        return KEY_UP;
+
+    else if (analogRead(BUTTON_RIGHT) < BUTTON_TOLERANCE)
+        return KEY_RIGHT;
+
+    else if (analogRead(BUTTON_LEFT) < BUTTON_TOLERANCE)
+        return KEY_LEFT;
+
+    else if (analogRead(BUTTON_NEXT) < BUTTON_TOLERANCE)
+        return KEY_NEXT;
+
+    else if (analogRead(BUTTON_BACK) < BUTTON_TOLERANCE)
+        return KEY_BACK;
+
+    return KEY_NONE;
+}
+
+inline void printCursor(MCUFRIEND_kbv& tft, const byte cursor, const int menuColor) {
+    for (int i = 0; i <= MAX_MENU_NUM; i++) {
+        tft.drawRect(0, ((tft.height() / MAX_MENU_NUM) * i) + 1, tft.width(), (tft.height() / MAX_MENU_NUM) - 1, menuColor);
+        tft.drawRect(1, ((tft.height() / MAX_MENU_NUM) * i) + 2, tft.width() - 2, (tft.height() / MAX_MENU_NUM) - 3, menuColor);
+    }
+
+    tft.drawRect(0, ((tft.height() / MAX_MENU_NUM) * cursor) + 1, tft.width(), (tft.height() / MAX_MENU_NUM) - 1, MAROON);
+    tft.drawRect(1, ((tft.height() / MAX_MENU_NUM) * cursor) + 2, tft.width() - 2, (tft.height() / MAX_MENU_NUM) - 3, RED);
+}
+
+inline void gameOver(MCUFRIEND_kbv& tft, unsigned int score) {
+    tft.fillScreen(RED);
+    tft.print(score);
+}
+
 #endif

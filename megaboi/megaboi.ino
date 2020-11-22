@@ -1,4 +1,4 @@
-#include "Menus/MainMenu/MainMenu.hpp"
+#include "Menus/MainMenu.hpp"
 // çoğu şeyi enum yapmak isterdim ama PROGMEM olmuyor
 
 // fonksiyon dışında olması ne kadar iyi bilmiyorum
@@ -26,7 +26,5 @@ void setup() {
 }
 
 void loop() {
-    byte cursor = 0;
-
-    MainMenu::open(tft, cursor);
+    MainMenu::open(tft);
 }

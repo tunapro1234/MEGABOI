@@ -1,9 +1,8 @@
 #ifndef __MAINMENU_H
 #define __MAINMENU_H
 
-#include "../../header.hpp"
-#include "../Cursor.hpp"
-#include "../getKey.hpp"
+#include "../header.hpp"
+#include "TestMenu.hpp"
 
 class MainMenu {
    public:
@@ -11,20 +10,22 @@ class MainMenu {
         // bunu da ayrı güzel bir fonksiyona çıkarmak lazım da üşendim
 
         // tft.fillScreen(DEFAULT_MAIN_MENU_COLOR);
-        byte w_menu;
         tft.setTextColor(BLACK);
         tft.setTextSize(2);
 
-        w_menu = 0;
-        tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+        // tft.setCursor((tft.width() / 2) - 40, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+
+        // GAMES -> len(5), location -> 0
+        tft.setCursor((tft.width() / 2) - 20, (tft.height() / (MAX_MENU_NUM * 2)) - 5);
         tft.print(F("GAMES"));
 
-        w_menu = 1;
-        tft.setCursor((tft.width() / 2) - 20, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+        // TESTS -> len(5) * 4, location -> 1
+        tft.setCursor((tft.width() / 2) - 20, ((tft.height()) / (MAX_MENU_NUM * 2)) * 3 - 5);
         tft.print(F("TESTS"));
 
-        w_menu = MAX_MENU_NUM - 1;
-        tft.setCursor((tft.width() / 2) - 40, (((tft.height()) / (MAX_MENU_NUM * 2)) * ((w_menu * 2) + 1)) - 5);
+        // SETTINGS -> len(8) * 4, location -> 2
+        tft.setCursor((tft.width() / 2) - 40, (((tft.height()) / (MAX_MENU_NUM * 2)) * (((MAX_MENU_NUM - 1) * 2) + 1)) - 5);
+        // tft.setCursor((tft.width() / 2) - 32, (((tft.height()) / (MAX_MENU_NUM * 2)) * 5 - 5));
         tft.print(F("SETTINGS"));
 
         for (int i = 0; i <= MAX_MENU_NUM; i++) {
@@ -32,7 +33,8 @@ class MainMenu {
         }
     }
 
-    inline static void open(MCUFRIEND_kbv& tft, byte& cursor) {
+    inline static void open(MCUFRIEND_kbv& tft) {
+        byte cursor = 0;
         tft.fillScreen(DEFAULT_MAIN_MENU_COLOR);
 
         MainMenu::print(tft);
@@ -69,13 +71,18 @@ class MainMenu {
                         // tamamen test için
                         printCursor(tft, cursor = (MAX_MENU_NUM - 1), DEFAULT_MAIN_MENU_COLOR);
 
-                        // GamesMenu::open(tft, cursor);
-                        // cursor = 0;
+                        // GamesMenu::open(tft);
                         break;
 
                     case 1:
-                        // TestMenu::open(tft, cursor);
-                        // cursor = 1;
+                        // şimdi cursorı referans olarak yollabilirim, normal verebilirim, ya da hiç vermem
+                        // normal vermenin hiç vermemeden farkı yok.
+
+                        //  cursor 1 byte yer kaplıyor, pointerlar 2. Sanırım referans olarak verdikten sonra
+                        // verilen pointer yok ediliyor umarım öyledir.
+
+                        // ama ben yine de yeni bir cursor oluşturacağım
+                        TestMenu::open(tft);
                         break;
 
                         // case MAX_MENU_NUM-1:
@@ -95,7 +102,7 @@ class MainMenu {
 
    private:
     // obje yok
-    MainMenu();
+    inline MainMenu() {}
 };
 
 #endif
